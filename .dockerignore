@@ -1,0 +1,17 @@
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+tests/
+.vscode
+.idea
+frontend/node_modules
+frontend/.next
+chroma_data/
