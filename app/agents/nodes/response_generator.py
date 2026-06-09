@@ -19,14 +19,13 @@ class DraftSpec(BaseModel):
     body: str
     tone: Literal["professional", "friendly", "sales", "technical"]
     confidence: float = Field(ge=0.0, le=1.0)
-    reasoning: str
 
 
 async def generate_response(state: WorkflowState) -> dict:
     email = state.get("email", {})
     context = state.get("retrieved_context") or []
     context_str = (
-        "\n---\n".join((c.get("text") or "")[:500] for c in context) or "(no prior context)"
+        "\n---\n".join((c.get("text") or "")[:250] for c in context) or "(no prior context)"
     )
 
     user_msg = (
@@ -36,11 +35,11 @@ async def generate_response(state: WorkflowState) -> dict:
         f"Category: {state.get('category')}\n"
         f"Urgency: {state.get('urgency')}\n"
         f"Intent: {state.get('intent')}\n\n"
-        f"Body:\n{(email.get('body_plain') or '')[:3000]}\n\n"
+        f"Body:\n{(email.get('body_plain') or '')[:1500]}\n\n"
         f"---\nRelevant past emails:\n{context_str}\n"
     )
 
-    structured = get_llm(temperature=0.4).with_structured_output(DraftSpec)
+    structured = get_llm(temperature=0.4, max_tokens=1024).with_structured_output(DraftSpec)
     result: DraftSpec = await structured.ainvoke(
         [
             SystemMessage(content=RESPONSE_GENERATOR_SYSTEM),
